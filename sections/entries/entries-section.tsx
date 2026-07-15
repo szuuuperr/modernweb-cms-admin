@@ -56,7 +56,7 @@ export function EntriesSection({
         <div className="flex items-center gap-2">
           <Link
             href={`/websites/${websiteId}/collections/${collectionId}`}
-            className="text-xs text-slate-500 hover:underline"
+            className="text-xs text-muted hover:underline"
           >
             ← Builder
           </Link>
@@ -101,7 +101,7 @@ export function EntriesSection({
           <CardBody className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase text-slate-500">
+                <thead className="border-b border-border bg-slate-50 text-left text-xs uppercase text-muted">
                   <tr>
                     {preview.map((field) => (
                       <th key={field.id} className="px-4 py-2 font-medium">
@@ -131,12 +131,12 @@ export function EntriesSection({
                       ))}
                       <td className="px-4 py-2">
                         <Badge
-                          tone={entry.status === "PUBLISHED" ? "green" : "slate"}
+                          tone={entry.status === "PUBLISHED" ? "success" : "info"}
                         >
                           {entry.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-2 text-xs text-slate-500">
+                      <td className="px-4 py-2 text-xs text-muted">
                         {formatDate(entry.updatedAt)}
                       </td>
                       <td className="px-4 py-2">
@@ -168,7 +168,7 @@ export function EntriesSection({
                                 }
                               }}
                             >
-                              <Trash2 className="h-4 w-4 text-red-600" />
+                              <Trash2 className="h-4 w-4 text-danger" />
                             </Button>
                           )}
                         </div>
@@ -184,7 +184,7 @@ export function EntriesSection({
 
       {data && data.meta.totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
-          <span className="text-slate-500">
+          <span className="text-muted">
             Halaman {data.meta.page} dari {data.meta.totalPages} · {data.meta.total}{" "}
             entry
           </span>

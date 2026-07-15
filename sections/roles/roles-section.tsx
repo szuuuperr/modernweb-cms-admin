@@ -11,7 +11,7 @@ import {
 import { useCan } from "@/lib/auth/use-can";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
-import { Input, Label } from "@/components/ui/input";
+import { Checkbox, Input, Label } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Badge, ErrorBlock, LoadingBlock } from "@/components/ui/feedback";
 import { groupedPermissions, type Permission } from "@/lib/permissions";
@@ -30,7 +30,7 @@ export function RolesSection({ websiteId }: { websiteId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           Role adalah sekumpulan permission. Perubahan langsung berlaku bagi
           semua anggota yang memakainya.
         </p>
@@ -84,7 +84,7 @@ export function RolesSection({ websiteId }: { websiteId: string }) {
                         }
                       }}
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
+                      <Trash2 className="h-4 w-4 text-danger" />
                     </Button>
                   </div>
                 )}
@@ -192,10 +192,10 @@ function RoleModal({
             <Label>Permission ({selected.size})</Label>
           </div>
 
-          <div className="max-h-72 space-y-4 overflow-y-auto rounded-md border border-slate-200 p-3">
+          <div className="max-h-72 space-y-4 overflow-y-auto rounded-md border border-border p-3">
             {groupedPermissions().map((group) => (
               <div key={group.resource} className="space-y-1">
-                <p className="text-xs font-semibold uppercase text-slate-500">
+                <p className="text-xs font-semibold uppercase text-muted">
                   {group.label}
                 </p>
                 <div className="grid gap-1 sm:grid-cols-2">
@@ -204,8 +204,7 @@ function RoleModal({
                       key={permission}
                       className="flex items-center gap-2 text-sm"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selected.has(permission)}
                         onChange={() => toggle(permission)}
                       />

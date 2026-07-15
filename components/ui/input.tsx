@@ -4,7 +4,7 @@ import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 const base =
-  "flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-red-500";
+  "flex h-9 w-full rounded-lg border border-border bg-surface px-3 py-1 text-sm text-foreground transition-colors placeholder:text-faint focus-visible:outline-none focus-visible:border-primary-700 focus-visible:ring-2 focus-visible:ring-primary-700/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-70 aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger/20";
 
 export const Input = forwardRef<
   HTMLInputElement,
@@ -30,7 +30,7 @@ export const Select = forwardRef<
   HTMLSelectElement,
   React.SelectHTMLAttributes<HTMLSelectElement>
 >(function Select({ className, ...props }, ref) {
-  return <select ref={ref} className={cn(base, className)} {...props} />;
+  return <select ref={ref} className={cn(base, "pr-8", className)} {...props} />;
 });
 
 export function Label({
@@ -39,7 +39,7 @@ export function Label({
 }: React.LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label
-      className={cn("text-sm font-medium text-slate-700", className)}
+      className={cn("text-[13px] font-medium text-slate-700", className)}
       {...props}
     />
   );
@@ -47,5 +47,22 @@ export function Label({
 
 export function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="text-xs text-red-600">{message}</p>;
+  return <p className="text-xs text-danger">{message}</p>;
+}
+
+/** Checkbox styled to the primary token — `accent-color` keeps it native. */
+export function Checkbox({
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      type="checkbox"
+      className={cn(
+        "h-4 w-4 rounded border-border accent-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700/40",
+        className,
+      )}
+      {...props}
+    />
+  );
 }

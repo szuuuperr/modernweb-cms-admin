@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCollections } from "@/lib/api/hooks";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Checkbox, Input, Label, Select } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { ErrorBlock } from "@/components/ui/feedback";
 import { FIELD_TYPES, optionKeysFor, type FieldOptions } from "@/lib/field-types";
@@ -127,7 +127,7 @@ export function FieldFormModal({
               placeholder="harga"
               onChange={(e) => set("key", e.target.value)}
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted">
               Kunci di JSON entry. Diawali huruf, hanya huruf/angka/underscore.
             </p>
           </div>
@@ -154,8 +154,7 @@ export function FieldFormModal({
         </div>
 
         <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={draft.required}
             onChange={(e) => set("required", e.target.checked)}
           />
@@ -193,7 +192,7 @@ export function FieldFormModal({
             <Label htmlFor="f-choices">Pilihan (satu per baris)</Label>
             <textarea
               id="f-choices"
-              className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm"
+              className="min-h-24 w-full rounded-md border border-border px-3 py-2 font-mono text-sm"
               value={choicesText}
               onChange={(e) => setChoicesText(e.target.value)}
               placeholder={"reguler\npremium"}
@@ -216,7 +215,7 @@ export function FieldFormModal({
                 </option>
               ))}
             </Select>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted">
               Dipakai editor untuk menampilkan pilihan. Backend menerima id
               entry mana pun.
             </p>
@@ -225,8 +224,7 @@ export function FieldFormModal({
 
         {optionKeys.includes("multiple") && (
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={draft.options.multiple ?? false}
               onChange={(e) => setOption("multiple", e.target.checked)}
             />

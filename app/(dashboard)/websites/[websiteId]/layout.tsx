@@ -17,7 +17,7 @@ export default function WebsiteLayout({
   const { websiteId } = use(params);
 
   return (
-    <div className="space-y-6">
+    <div>
       <WebsiteTabs websiteId={websiteId} />
       {children}
     </div>

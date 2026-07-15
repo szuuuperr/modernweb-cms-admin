@@ -1,7 +1,7 @@
 "use client";
 
 import { useMedia, useEntries } from "@/lib/api/hooks";
-import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { Checkbox, Input, Label, Select, Textarea } from "@/components/ui/input";
 import type { Field } from "@/lib/api/types";
 import type { FieldOptions } from "@/lib/field-types";
 
@@ -30,8 +30,8 @@ export function FieldInput({
     <div className="space-y-1.5">
       <Label htmlFor={id}>
         {field.name}
-        {field.required && <span className="ml-1 text-red-600">*</span>}
-        <span className="ml-2 font-mono text-xs font-normal text-slate-400">
+        {field.required && <span className="ml-1 text-danger">*</span>}
+        <span className="ml-2 font-mono text-xs font-normal text-faint">
           {field.key}
         </span>
       </Label>
@@ -45,7 +45,7 @@ export function FieldInput({
         onChange={onChange}
       />
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }
@@ -96,9 +96,8 @@ function Control({
     case "BOOLEAN":
       return (
         <label className="flex items-center gap-2">
-          <input
+          <Checkbox
             id={id}
-            type="checkbox"
             checked={!!value}
             onChange={(e) => onChange(e.target.checked)}
           />
@@ -192,12 +191,12 @@ function MediaPicker({
   onChange: (value: unknown) => void;
 }) {
   const { data, isLoading } = useMedia(websiteId, 1);
-  if (isLoading) return <p className="text-sm text-slate-500">Memuat media…</p>;
+  if (isLoading) return <p className="text-sm text-muted">Memuat media…</p>;
 
   const items = data?.items ?? [];
   if (items.length === 0) {
     return (
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-muted">
         Belum ada media. Unggah dulu di tab Media.
       </p>
     );
@@ -240,7 +239,7 @@ function RelationPicker({
       </p>
     );
   }
-  if (isLoading) return <p className="text-sm text-slate-500">Memuat entry…</p>;
+  if (isLoading) return <p className="text-sm text-muted">Memuat entry…</p>;
 
   const items = data?.items ?? [];
   return (
@@ -270,11 +269,10 @@ function MultiOrSingleSelect({
   if (multiple) {
     const selected = Array.isArray(value) ? (value as string[]) : [];
     return (
-      <div className="max-h-48 space-y-1 overflow-y-auto rounded-md border border-slate-300 p-2">
+      <div className="max-h-48 space-y-1 overflow-y-auto rounded-md border border-border p-2">
         {options.map((option) => (
           <label key={option.id} className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={selected.includes(option.id)}
               onChange={(e) =>
                 onChange(
@@ -334,7 +332,7 @@ function JsonInput({
           }
         }}
       />
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted">
         JSON tidak valid akan dikirim sebagai string biasa.
       </p>
     </>

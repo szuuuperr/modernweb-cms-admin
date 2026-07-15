@@ -106,7 +106,7 @@ export function CollectionBuilderSection({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-medium">{data.name}</h2>
-          <p className="font-mono text-xs text-slate-500">{data.slug}</p>
+          <p className="font-mono text-xs text-muted">{data.slug}</p>
         </div>
         <div className="flex items-center gap-2">
           {reordering && <Spinner />}
@@ -131,7 +131,7 @@ export function CollectionBuilderSection({
         <CardHeader>
           <CardTitle>Field</CardTitle>
           {manage && sorted.length > 1 && (
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-muted">
               Seret untuk mengubah urutan form editor
             </span>
           )}
@@ -275,14 +275,14 @@ function SortableFieldRow({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`flex items-center gap-3 rounded-md border border-slate-200 bg-white px-3 py-2 ${
+      className={`flex items-center gap-3 rounded-md border border-border bg-surface px-3 py-2 ${
         isDragging ? "z-10 shadow-lg" : ""
       }`}
     >
       {canManage && (
         <button
           type="button"
-          className="cursor-grab text-slate-400 hover:text-slate-600 active:cursor-grabbing"
+          className="cursor-grab text-faint hover:text-slate-600 active:cursor-grabbing"
           aria-label={`Ubah urutan ${field.name}`}
           {...attributes}
           {...listeners}
@@ -294,12 +294,14 @@ function SortableFieldRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-medium">{field.name}</span>
-          {field.required && <Badge tone="amber">wajib</Badge>}
+          {field.required && <Badge tone="warning">wajib</Badge>}
         </div>
-        <span className="font-mono text-xs text-slate-500">{field.key}</span>
+        <span className="font-mono text-xs text-muted">{field.key}</span>
       </div>
 
-      <Badge>{FIELD_TYPE_LABEL[field.type]}</Badge>
+      {/* Violet is the category accent in design.md: it reads as "what kind of
+          field", kept distinct from the status colours used elsewhere. */}
+      <Badge tone="violet">{FIELD_TYPE_LABEL[field.type]}</Badge>
 
       {canManage && (
         <div className="flex gap-1">
@@ -312,7 +314,7 @@ function SortableFieldRow({
             onClick={onDelete}
             aria-label="Hapus field"
           >
-            <Trash2 className="h-4 w-4 text-red-600" />
+            <Trash2 className="h-4 w-4 text-danger" />
           </Button>
         </div>
       )}

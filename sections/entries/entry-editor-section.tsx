@@ -130,7 +130,7 @@ function EntryForm({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Link href={listHref} className="text-xs text-slate-500 hover:underline">
+          <Link href={listHref} className="text-xs text-muted hover:underline">
             ← {collectionName}
           </Link>
           <h2 className="mt-1 font-medium">
@@ -140,7 +140,7 @@ function EntryForm({
 
         <div className="flex items-center gap-2">
           {entry && (
-            <Badge tone={entry.status === "PUBLISHED" ? "green" : "slate"}>
+            <Badge tone={entry.status === "PUBLISHED" ? "success" : "info"}>
               {entry.status}
             </Badge>
           )}
@@ -171,13 +171,13 @@ function EntryForm({
       <Card>
         <CardHeader>
           <CardTitle>Konten</CardTitle>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-muted">
             Form ini dirender dari {fields.length} field collection
           </span>
         </CardHeader>
         <CardBody className="space-y-5">
           {fields.length === 0 && (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted">
               Collection ini belum punya field. Tambahkan dulu di builder.
             </p>
           )}

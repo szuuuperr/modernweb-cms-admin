@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { useDeleteUser, useUpdateUser, useUsers } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/auth-context";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Select } from "@/components/ui/input";
@@ -31,13 +32,10 @@ export function UsersSection() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-semibold">Pengguna</h1>
-        <p className="text-sm text-slate-500">
-          Platform role berlaku lintas website. Akses per-website diatur lewat
-          role di masing-masing website.
-        </p>
-      </div>
+      <PageHeader
+        title="Pengguna"
+        description="Platform role berlaku lintas website. Akses per-website diatur lewat role di masing-masing website."
+      />
 
       {isLoading && <LoadingBlock />}
       {error && <ErrorBlock error={error} />}
@@ -48,7 +46,7 @@ export function UsersSection() {
         <Card>
           <CardBody className="p-0">
             <table className="w-full text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase text-slate-500">
+              <thead className="border-b border-border bg-slate-50 text-left text-xs uppercase text-muted">
                 <tr>
                   <th className="px-4 py-2 font-medium">Nama</th>
                   <th className="px-4 py-2 font-medium">Email</th>
@@ -68,7 +66,7 @@ export function UsersSection() {
                       <td className="px-4 py-2 font-medium">
                         {item.name}
                         {isSelf && (
-                          <span className="ml-2 text-xs text-slate-400">
+                          <span className="ml-2 text-xs text-faint">
                             (Anda)
                           </span>
                         )}
@@ -100,7 +98,7 @@ export function UsersSection() {
                           item.platformRole
                         )}
                       </td>
-                      <td className="px-4 py-2 text-xs text-slate-500">
+                      <td className="px-4 py-2 text-xs text-muted">
                         {formatDate(item.createdAt)}
                       </td>
                       <td className="px-4 py-2 text-right">
@@ -119,7 +117,7 @@ export function UsersSection() {
                               }
                             }}
                           >
-                            <Trash2 className="h-4 w-4 text-red-600" />
+                            <Trash2 className="h-4 w-4 text-danger" />
                           </Button>
                         )}
                       </td>

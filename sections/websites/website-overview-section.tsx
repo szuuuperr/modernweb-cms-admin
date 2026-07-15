@@ -6,7 +6,7 @@ import { useUpdateWebsite, useWebsite } from "@/lib/api/hooks";
 import { useCan } from "@/lib/auth/use-can";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Checkbox, Input, Label, Select } from "@/components/ui/input";
 import { ErrorBlock, LoadingBlock } from "@/components/ui/feedback";
 import type { WebsiteStatus } from "@/lib/api/types";
 
@@ -75,7 +75,7 @@ export function WebsiteOverviewSection({ websiteId }: { websiteId: string }) {
                   disabled={!editable}
                   {...register("slug")}
                 />
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted">
                   Dipakai di URL Content API publik.
                 </p>
               </div>
@@ -96,16 +96,15 @@ export function WebsiteOverviewSection({ websiteId }: { websiteId: string }) {
               </div>
             </div>
 
-            <label className="flex items-start gap-2 rounded-md border border-slate-200 p-3">
-              <input
-                type="checkbox"
+            <label className="flex items-start gap-2 rounded-lg border border-border p-3">
+              <Checkbox
                 className="mt-0.5"
                 disabled={!editable}
                 {...register("requireApiKey")}
               />
               <span className="text-sm">
                 <span className="font-medium">Wajibkan API key</span>
-                <span className="block text-slate-500">
+                <span className="block text-muted">
                   Content API publik menolak permintaan tanpa x-api-key yang
                   valid. Frontend yang belum dikonfigurasi akan langsung gagal.
                 </span>
@@ -143,7 +142,7 @@ export function WebsiteOverviewSection({ websiteId }: { websiteId: string }) {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-baseline justify-between">
-      <span className="text-sm text-slate-500">{label}</span>
+      <span className="text-sm text-muted">{label}</span>
       <span className="text-lg font-semibold tabular-nums">{value}</span>
     </div>
   );

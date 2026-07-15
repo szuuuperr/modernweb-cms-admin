@@ -30,7 +30,7 @@ export function MediaSection({ websiteId }: { websiteId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           Berkas diunggah ke storage yang dikonfigurasi backend (local atau
           Cloudinary).
         </p>
@@ -123,7 +123,7 @@ function MediaCard({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="px-2 text-center text-xs text-slate-500">
+          <span className="px-2 text-center text-xs text-muted">
             {media.mimeType}
           </span>
         )}
@@ -132,7 +132,7 @@ function MediaCard({
         <p className="truncate text-xs font-medium" title={media.filename}>
           {media.filename}
         </p>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-faint">
           {formatBytes(media.size)} · {formatDate(media.createdAt)}
         </p>
         <div className="flex items-center justify-between pt-1">
@@ -140,7 +140,7 @@ function MediaCard({
             href={media.url}
             target="_blank"
             rel="noreferrer"
-            className="text-xs text-slate-500 hover:underline"
+            className="text-xs text-muted hover:underline"
           >
             Buka
           </a>
@@ -154,7 +154,7 @@ function MediaCard({
                 if (confirm(`Hapus "${media.filename}"?`)) remove.mutate(media.id);
               }}
             >
-              <Trash2 className="h-3.5 w-3.5 text-red-600" />
+              <Trash2 className="h-3.5 w-3.5 text-danger" />
             </Button>
           )}
         </div>

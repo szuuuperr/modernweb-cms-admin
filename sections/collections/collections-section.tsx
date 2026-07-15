@@ -38,7 +38,7 @@ export function CollectionsSection({ websiteId }: { websiteId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           Collection mendefinisikan bentuk konten. Field-nya menentukan form
           editor entry.
         </p>
@@ -92,7 +92,7 @@ function CollectionCard({
   const remove = useDeleteCollection(websiteId);
 
   return (
-    <Card className="transition-shadow hover:shadow-md">
+    <Card className="transition-shadow hover:shadow-pop">
       <CardBody className="space-y-2">
         <div className="flex items-start justify-between gap-2">
           <Link
@@ -120,11 +120,11 @@ function CollectionCard({
               }}
               aria-label="Hapus collection"
             >
-              <Trash2 className="h-4 w-4 text-red-600" />
+              <Trash2 className="h-4 w-4 text-danger" />
             </Button>
           )}
         </div>
-        <p className="font-mono text-xs text-slate-500">{collection.slug}</p>
+        <p className="font-mono text-xs text-muted">{collection.slug}</p>
         {collection.description && (
           <p className="text-sm text-slate-600">{collection.description}</p>
         )}

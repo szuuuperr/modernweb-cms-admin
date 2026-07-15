@@ -18,6 +18,12 @@ API harus jalan lebih dulu, dan origin panel **wajib** terdaftar di `ADMIN_ORIGI
 |---|---|
 | `NEXT_PUBLIC_API_URL="http://localhost:3001/api/v1"` | `ADMIN_ORIGINS="http://localhost:3000"` |
 
+## Desain
+
+Sumber kebenaran: **[`design.md`](./design.md)** — token warna (primary `#00419c`), tipografi Poppins, bentuk, dan aturan komponen. Token diterapkan di blok `@theme` pada `app/globals.css` (Tailwind v4, tidak ada `tailwind.config.js`) dan dipakai lewat utility biasa: `bg-primary`, `text-muted`, `<Badge tone="success">`.
+
+**Jangan menulis hex langsung di komponen.** Kalau sebuah nilai belum ada, tambahkan token-nya dulu lalu perbarui `design.md`.
+
 ## Arsitektur
 
 ```

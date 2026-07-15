@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Plus } from "lucide-react";
 import { useCreateWebsite, useWebsites } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/auth-context";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { FieldError, Input, Label } from "@/components/ui/input";
@@ -46,21 +47,19 @@ export function WebsitesSection() {
     user?.platformRole === "SUPER_ADMIN";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold">Websites</h1>
-          <p className="text-sm text-slate-500">
-            Setiap website punya collection, konten, dan anggotanya sendiri.
-          </p>
-        </div>
-        {canCreate && (
-          <Button onClick={() => setOpen(true)}>
-            <Plus className="h-4 w-4" />
-            Website baru
-          </Button>
-        )}
-      </div>
+    <div>
+      <PageHeader
+        title="Websites"
+        description="Setiap website punya collection, konten, dan anggotanya sendiri."
+        actions={
+          canCreate && (
+            <Button onClick={() => setOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Website baru
+            </Button>
+          )
+        }
+      />
 
       {isLoading && <LoadingBlock />}
       {error && <ErrorBlock error={error} />}
@@ -79,22 +78,28 @@ export function WebsitesSection() {
       {data && data.items.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data.items.map((website) => (
-            <Link key={website.id} href={`/websites/${website.id}`}>
-              <Card className="h-full transition-shadow hover:shadow-md">
+            <Link
+              key={website.id}
+              href={`/websites/${website.id}`}
+              className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700/40"
+            >
+              <Card className="h-full transition-shadow group-hover:shadow-pop">
                 <CardBody className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <h2 className="font-medium">{website.name}</h2>
-                    <Badge tone={website.status === "ACTIVE" ? "green" : "slate"}>
+                    <h2 className="font-medium group-hover:text-primary-700">
+                      {website.name}
+                    </h2>
+                    <Badge
+                      tone={website.status === "ACTIVE" ? "success" : "slate"}
+                    >
                       {website.status}
                     </Badge>
                   </div>
-                  <p className="font-mono text-xs text-slate-500">
-                    {website.slug}
-                  </p>
+                  <p className="font-mono text-xs text-muted">{website.slug}</p>
                   {website.domain && (
                     <p className="text-sm text-slate-600">{website.domain}</p>
                   )}
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-faint">
                     Dibuat {formatDate(website.createdAt)}
                   </p>
                 </CardBody>

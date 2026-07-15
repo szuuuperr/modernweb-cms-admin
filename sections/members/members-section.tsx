@@ -31,7 +31,7 @@ export function MembersSection({ websiteId }: { websiteId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           Anggota mengakses website ini lewat role yang menentukan permission-nya.
         </p>
         {manage && (
@@ -53,7 +53,7 @@ export function MembersSection({ websiteId }: { websiteId: string }) {
         <Card>
           <CardBody className="p-0">
             <table className="w-full text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase text-slate-500">
+              <thead className="border-b border-border bg-slate-50 text-left text-xs uppercase text-muted">
                 <tr>
                   <th className="px-4 py-2 font-medium">Nama</th>
                   <th className="px-4 py-2 font-medium">Email</th>
@@ -71,7 +71,7 @@ export function MembersSection({ websiteId }: { websiteId: string }) {
                     <td className="px-4 py-2 text-slate-600">
                       {member.user.email}
                       {member.userId === user?.id && (
-                        <span className="ml-2 text-xs text-slate-400">(Anda)</span>
+                        <span className="ml-2 text-xs text-faint">(Anda)</span>
                       )}
                     </td>
                     <td className="px-4 py-2">
@@ -112,7 +112,7 @@ export function MembersSection({ websiteId }: { websiteId: string }) {
                             }
                           }}
                         >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                          <Trash2 className="h-4 w-4 text-danger" />
                         </Button>
                       )}
                     </td>
@@ -181,7 +181,7 @@ function AddMemberModal({
             onChange={(e) => setEmail(e.target.value)}
             placeholder="editor@contoh.com"
           />
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted">
             Pengguna harus sudah terdaftar — backend mencari akun dengan email ini.
           </p>
         </div>

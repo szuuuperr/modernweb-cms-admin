@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { useWebsite } from "@/lib/api/hooks";
 import { useCan } from "@/lib/auth/use-can";
+import { PageHeader } from "@/components/layout/page-header";
 import { cn } from "@/lib/utils";
 
 /** Tabs are filtered by permission so the nav never offers a certain 403. */
@@ -22,17 +24,19 @@ export function WebsiteTabs({ websiteId }: { websiteId: string }) {
   const base = `/websites/${websiteId}`;
 
   return (
-    <div className="space-y-4">
-      <div>
-        <Link href="/websites" className="text-xs text-slate-500 hover:underline">
-          ← Semua website
+    <PageHeader
+      title={website?.name ?? "Memuat…"}
+      breadcrumb={
+        <Link
+          href="/websites"
+          className="mb-1 inline-flex items-center gap-1 text-xs text-muted transition-colors hover:text-primary-700"
+        >
+          <ChevronLeft className="h-3 w-3" />
+          Semua website
         </Link>
-        <h1 className="mt-1 text-lg font-semibold">
-          {website?.name ?? "Memuat…"}
-        </h1>
-      </div>
-
-      <nav className="flex gap-1 border-b border-slate-200">
+      }
+    >
+      <nav className="-mb-px flex gap-1 overflow-x-auto">
         {TABS.filter((tab) => can(tab.permission)).map((tab) => {
           const href = `${base}${tab.segment}`;
           // Without the exact check, "Ringkasan" would stay active on every
@@ -44,11 +48,12 @@ export function WebsiteTabs({ websiteId }: { websiteId: string }) {
             <Link
               key={tab.label}
               href={href}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "-mb-px border-b-2 px-3 py-2 text-sm transition-colors",
+                "whitespace-nowrap border-b-2 px-3 py-2.5 text-sm transition-colors",
                 active
-                  ? "border-slate-900 font-medium text-slate-900"
-                  : "border-transparent text-slate-500 hover:text-slate-800",
+                  ? "border-primary-700 font-medium text-primary-700"
+                  : "border-transparent text-muted hover:text-foreground",
               )}
             >
               {tab.label}
@@ -56,6 +61,6 @@ export function WebsiteTabs({ websiteId }: { websiteId: string }) {
           );
         })}
       </nav>
-    </div>
+    </PageHeader>
   );
 }
