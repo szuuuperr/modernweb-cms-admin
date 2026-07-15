@@ -6,17 +6,30 @@ import {
   useQueryClient,
   type UseQueryOptions,
 } from "@tanstack/react-query";
-import { api, apiFetch } from "./client";
+import { ApiError, api, apiFetch } from "./client";
 import type {
   AddMemberInput,
+  ApiKey,
+  ApiKeyCreated,
   Collection,
   Entry,
   EntryStatus,
   Field,
   Media,
   Member,
+  Menu,
+  MenuDetail,
+  MenuItemInput,
+  Page,
+  PageStatus,
   Paginated,
+  ReorderMenuItem,
   Role,
+  Seo,
+  SeoDefaults,
+  SeoInput,
+  SeoTarget,
+  Setting,
   User,
   Website,
   WebsiteDetail,
@@ -42,6 +55,16 @@ export const keys = {
   members: (id: string) => ["websites", id, "members"] as const,
   roles: (id: string) => ["websites", id, "roles"] as const,
   users: (page: number) => ["users", page] as const,
+
+  pages: (id: string, q?: unknown) => ["websites", id, "pages", q ?? null] as const,
+  page: (id: string, pid: string) => ["websites", id, "pages", pid] as const,
+  menus: (id: string) => ["websites", id, "menus"] as const,
+  menu: (id: string, mid: string) => ["websites", id, "menus", mid] as const,
+  seoDefaults: (id: string) => ["websites", id, "seo", "defaults"] as const,
+  seo: (id: string, type: SeoTarget, targetId: string) =>
+    ["websites", id, "seo", type, targetId] as const,
+  settings: (id: string) => ["websites", id, "settings"] as const,
+  apiKeys: (id: string) => ["websites", id, "api-keys"] as const,
 };
 
 // ---------------------------------------------------------------- websites
@@ -440,4 +463,306 @@ export function useDeleteUser() {
     mutationFn: (id: string) => api.delete(`/users/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
   });
+}
+
+// ------------------------------------------------------------------- pages
+
+export interface PageQuery {
+  page?: number;
+  limit?: number;
+  status?: PageStatus | "";
+  search?: string;
+}
+
+export function usePages(websiteId: string, query: PageQuery) {
+  return useQuery({
+    queryKey: keys.pages(websiteId, query),
+    queryFn: () =>
+      api.get<Paginated<Page>>(`/websites/${websiteId}/pages`, { ...query }),
+    enabled: !!websiteId,
+  });
+}
+
+export function usePage(websiteId: string, pageId: string) {
+  return useQuery({
+    queryKey: keys.page(websiteId, pageId),
+    queryFn: () => api.get<Page>(`/websites/${websiteId}/pages/${pageId}`),
+    enabled: !!websiteId && !!pageId,
+  });
+}
+
+/** Invalidates the whole pages subtree — list and detail alike. */
+function usePageMutation<TArgs, TResult>(
+  websiteId: string,
+  fn: (args: TArgs) => Promise<TResult>,
+) {
+  const qc = useQueryClient();
+  return useMutation<TResult, Error, TArgs>({
+    mutationFn: fn,
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["websites", websiteId, "pages"] }),
+  });
+}
+
+export function useCreatePage(websiteId: string) {
+  return usePageMutation(websiteId, (body: Partial<Page>) =>
+    api.post<Page>(`/websites/${websiteId}/pages`, body),
+  );
+}
+
+export function useUpdatePage(websiteId: string) {
+  return usePageMutation(
+    websiteId,
+    ({ pageId, ...body }: Partial<Page> & { pageId: string }) =>
+      api.patch<Page>(`/websites/${websiteId}/pages/${pageId}`, body),
+  );
+}
+
+export function usePagePublish(websiteId: string) {
+  return usePageMutation(
+    websiteId,
+    ({ pageId, publish }: { pageId: string; publish: boolean }) =>
+      api.post<Page>(
+        `/websites/${websiteId}/pages/${pageId}/${
+          publish ? "publish" : "unpublish"
+        }`,
+      ),
+  );
+}
+
+export function useDeletePage(websiteId: string) {
+  return usePageMutation(websiteId, (pageId: string) =>
+    api.delete(`/websites/${websiteId}/pages/${pageId}`),
+  );
+}
+
+// ------------------------------------------------------------------- menus
+
+export function useMenus(websiteId: string) {
+  return useQuery({
+    queryKey: keys.menus(websiteId),
+    queryFn: () => api.get<Menu[]>(`/websites/${websiteId}/menus`),
+    enabled: !!websiteId,
+  });
+}
+
+export function useMenu(websiteId: string, menuId: string) {
+  return useQuery({
+    queryKey: keys.menu(websiteId, menuId),
+    queryFn: () => api.get<MenuDetail>(`/websites/${websiteId}/menus/${menuId}`),
+    enabled: !!websiteId && !!menuId,
+  });
+}
+
+function useMenuMutation<TArgs, TResult>(
+  websiteId: string,
+  fn: (args: TArgs) => Promise<TResult>,
+) {
+  const qc = useQueryClient();
+  return useMutation<TResult, Error, TArgs>({
+    mutationFn: fn,
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["websites", websiteId, "menus"] }),
+  });
+}
+
+export function useCreateMenu(websiteId: string) {
+  return useMenuMutation(websiteId, (body: { name: string; slug: string }) =>
+    api.post<Menu>(`/websites/${websiteId}/menus`, body),
+  );
+}
+
+export function useUpdateMenu(websiteId: string) {
+  return useMenuMutation(
+    websiteId,
+    ({ menuId, ...body }: { menuId: string; name?: string; slug?: string }) =>
+      api.patch<Menu>(`/websites/${websiteId}/menus/${menuId}`, body),
+  );
+}
+
+export function useDeleteMenu(websiteId: string) {
+  return useMenuMutation(websiteId, (menuId: string) =>
+    api.delete(`/websites/${websiteId}/menus/${menuId}`),
+  );
+}
+
+export function useAddMenuItem(websiteId: string, menuId: string) {
+  return useMenuMutation(websiteId, (body: MenuItemInput) =>
+    api.post(`/websites/${websiteId}/menus/${menuId}/items`, body),
+  );
+}
+
+export function useUpdateMenuItem(websiteId: string, menuId: string) {
+  return useMenuMutation(
+    websiteId,
+    ({ itemId, ...body }: MenuItemInput & { itemId: string }) =>
+      api.patch(`/websites/${websiteId}/menus/${menuId}/items/${itemId}`, body),
+  );
+}
+
+export function useDeleteMenuItem(websiteId: string, menuId: string) {
+  return useMenuMutation(websiteId, (itemId: string) =>
+    api.delete(`/websites/${websiteId}/menus/${menuId}/items/${itemId}`),
+  );
+}
+
+/**
+ * Whole-tree reorder in one call — unlike fields, menus have a dedicated
+ * endpoint, so a drag never fans out into N requests.
+ */
+export function useReorderMenu(websiteId: string, menuId: string) {
+  return useMenuMutation(websiteId, (items: ReorderMenuItem[]) =>
+    apiFetch(`/websites/${websiteId}/menus/${menuId}/reorder`, {
+      method: "PUT",
+      body: { items },
+    }),
+  );
+}
+
+// --------------------------------------------------------------------- seo
+
+export function useSeoDefaults(websiteId: string) {
+  return useQuery({
+    queryKey: keys.seoDefaults(websiteId),
+    queryFn: () => api.get<SeoDefaults>(`/websites/${websiteId}/seo/defaults`),
+    enabled: !!websiteId,
+  });
+}
+
+export function useUpsertSeoDefaults(websiteId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: SeoDefaults) =>
+      apiFetch<SeoDefaults>(`/websites/${websiteId}/seo/defaults`, {
+        method: "PUT",
+        body,
+      }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: keys.seoDefaults(websiteId) }),
+  });
+}
+
+/**
+ * SEO lives in one polymorphic table keyed by (targetType, targetId), so a page
+ * and an entry go through the very same endpoint.
+ */
+export function useSeo(
+  websiteId: string,
+  targetType: SeoTarget,
+  targetId: string,
+) {
+  return useQuery({
+    queryKey: keys.seo(websiteId, targetType, targetId),
+    queryFn: async () => {
+      try {
+        return await api.get<Seo>(
+          `/websites/${websiteId}/seo/${targetType}/${targetId}`,
+        );
+      } catch (error) {
+        // A target with no SEO row 404s, which is the normal state of anything
+        // just created — an empty form is the answer, not an error banner.
+        if (error instanceof ApiError && error.status === 404) return null;
+        throw error;
+      }
+    },
+    enabled: !!websiteId && !!targetId,
+  });
+}
+
+export function useUpsertSeo(
+  websiteId: string,
+  targetType: SeoTarget,
+  targetId: string,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: SeoInput) =>
+      apiFetch<Seo>(`/websites/${websiteId}/seo/${targetType}/${targetId}`, {
+        method: "PUT",
+        body,
+      }),
+    onSuccess: () =>
+      qc.invalidateQueries({
+        queryKey: keys.seo(websiteId, targetType, targetId),
+      }),
+  });
+}
+
+// ---------------------------------------------------------------- settings
+
+export function useSettings(websiteId: string) {
+  return useQuery({
+    queryKey: keys.settings(websiteId),
+    queryFn: () => api.get<Setting[]>(`/websites/${websiteId}/settings`),
+    enabled: !!websiteId,
+  });
+}
+
+function useSettingMutation<TArgs, TResult>(
+  websiteId: string,
+  fn: (args: TArgs) => Promise<TResult>,
+) {
+  const qc = useQueryClient();
+  return useMutation<TResult, Error, TArgs>({
+    mutationFn: fn,
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: keys.settings(websiteId) }),
+  });
+}
+
+export function useUpsertSetting(websiteId: string) {
+  return useSettingMutation(
+    websiteId,
+    ({ key, value }: { key: string; value: unknown }) =>
+      apiFetch<Setting>(`/websites/${websiteId}/settings/${key}`, {
+        method: "PUT",
+        body: { value },
+      }),
+  );
+}
+
+export function useDeleteSetting(websiteId: string) {
+  return useSettingMutation(websiteId, (key: string) =>
+    api.delete(`/websites/${websiteId}/settings/${key}`),
+  );
+}
+
+// ---------------------------------------------------------------- api keys
+
+export function useApiKeys(websiteId: string) {
+  return useQuery({
+    queryKey: keys.apiKeys(websiteId),
+    queryFn: () => api.get<ApiKey[]>(`/websites/${websiteId}/api-keys`),
+    enabled: !!websiteId,
+  });
+}
+
+function useApiKeyMutation<TArgs, TResult>(
+  websiteId: string,
+  fn: (args: TArgs) => Promise<TResult>,
+) {
+  const qc = useQueryClient();
+  return useMutation<TResult, Error, TArgs>({
+    mutationFn: fn,
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.apiKeys(websiteId) }),
+  });
+}
+
+/** The plaintext key comes back only here — the caller must show it at once. */
+export function useCreateApiKey(websiteId: string) {
+  return useApiKeyMutation(websiteId, (body: { name: string }) =>
+    api.post<ApiKeyCreated>(`/websites/${websiteId}/api-keys`, body),
+  );
+}
+
+export function useRevokeApiKey(websiteId: string) {
+  return useApiKeyMutation(websiteId, (apiKeyId: string) =>
+    api.post<ApiKey>(`/websites/${websiteId}/api-keys/${apiKeyId}/revoke`),
+  );
+}
+
+export function useDeleteApiKey(websiteId: string) {
+  return useApiKeyMutation(websiteId, (apiKeyId: string) =>
+    api.delete(`/websites/${websiteId}/api-keys/${apiKeyId}`),
+  );
 }

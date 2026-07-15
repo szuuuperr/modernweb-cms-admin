@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge, ErrorBlock, LoadingBlock } from "@/components/ui/feedback";
 import { FieldInput } from "@/components/entries/field-input";
+import { SeoPanel } from "@/components/seo/seo-panel";
 import type { Entry, Field } from "@/lib/api/types";
 
 export function EntryEditorSection({
@@ -168,34 +169,60 @@ function EntryForm({
 
       {mutationError != null && <ErrorBlock error={mutationError} />}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Konten</CardTitle>
-          <span className="text-xs text-muted">
-            Form ini dirender dari {fields.length} field collection
-          </span>
-        </CardHeader>
-        <CardBody className="space-y-5">
-          {fields.length === 0 && (
-            <p className="text-sm text-muted">
-              Collection ini belum punya field. Tambahkan dulu di builder.
-            </p>
-          )}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Konten</CardTitle>
+            <span className="text-xs text-muted">
+              Form ini dirender dari {fields.length} field collection
+            </span>
+          </CardHeader>
+          <CardBody className="space-y-5">
+            {fields.length === 0 && (
+              <p className="text-sm text-muted">
+                Collection ini belum punya field. Tambahkan dulu di builder.
+              </p>
+            )}
 
-          {fields.map((field) => (
-            <FieldInput
-              key={field.id}
+            {fields.map((field) => (
+              <FieldInput
+                key={field.id}
+                websiteId={websiteId}
+                field={field}
+                value={data[field.key]}
+                error={errors[field.key]}
+                onChange={(value) =>
+                  setData((prev) => ({ ...prev, [field.key]: value }))
+                }
+              />
+            ))}
+          </CardBody>
+        </Card>
+
+        <div>
+          {/* SEO is one polymorphic table, so an entry uses the same panel a
+              page does — only the targetType differs. */}
+          {entry ? (
+            <SeoPanel
               websiteId={websiteId}
-              field={field}
-              value={data[field.key]}
-              error={errors[field.key]}
-              onChange={(value) =>
-                setData((prev) => ({ ...prev, [field.key]: value }))
-              }
+              targetType="ENTRY"
+              targetId={entry.id}
             />
-          ))}
-        </CardBody>
-      </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>SEO</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <p className="text-sm text-muted">
+                  Simpan entry ini dulu — data SEO menempel pada id-nya, yang
+                  baru ada setelah penyimpanan pertama.
+                </p>
+              </CardBody>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -127,7 +127,13 @@ export async function apiFetch<T>(
 
   if (!res.ok) throw await ApiError.from(res);
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+
+  // Nest serialises a `null` return as a 200 with an empty body (e.g. SEO
+  // defaults that were never set), and JSON.parse("") throws. Treat empty as
+  // "no value" rather than letting it surface as a parse error.
+  const text = await res.text();
+  if (!text) return undefined as T;
+  return JSON.parse(text) as T;
 }
 
 export const api = {

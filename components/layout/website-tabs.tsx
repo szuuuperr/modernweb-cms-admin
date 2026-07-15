@@ -12,7 +12,12 @@ import { cn } from "@/lib/utils";
 const TABS = [
   { segment: "", label: "Ringkasan", permission: "websites.read" },
   { segment: "/collections", label: "Collections", permission: "collections.read" },
+  { segment: "/pages", label: "Pages", permission: "pages.read" },
+  { segment: "/menus", label: "Menus", permission: "menus.read" },
   { segment: "/media", label: "Media", permission: "media.read" },
+  { segment: "/seo", label: "SEO", permission: "seo.read" },
+  { segment: "/settings", label: "Settings", permission: "settings.read" },
+  { segment: "/api-keys", label: "API Keys", permission: "apikeys.read" },
   { segment: "/members", label: "Anggota", permission: "members.read" },
   { segment: "/roles", label: "Role", permission: "roles.read" },
 ];

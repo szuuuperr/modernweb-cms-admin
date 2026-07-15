@@ -17,6 +17,10 @@ export type EntryStatus = "DRAFT" | "PUBLISHED";
 
 export type WebsiteStatus = "ACTIVE" | "INACTIVE";
 
+export type PageStatus = "DRAFT" | "PUBLISHED";
+
+export type SeoTarget = "PAGE" | "ENTRY";
+
 export interface User {
   id: string;
   email: string;
@@ -131,6 +135,131 @@ export interface AddMemberInput {
 export interface WebsitePermissions {
   role: { id: string; name: string } | null;
   permissions: string[];
+}
+
+// ------------------------------------------------------------ Fase 2
+
+/**
+ * A block is opaque to the CMS: it only guarantees a `type`, and `props` stay
+ * free-form so the frontend can add block types without a backend change.
+ * That is why the editor here is generic rather than a per-type form.
+ */
+export interface PageBlock {
+  type: string;
+  props?: Record<string, unknown>;
+}
+
+export interface Page {
+  id: string;
+  websiteId: string;
+  title: string;
+  slug: string;
+  blocks: PageBlock[];
+  status: PageStatus;
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Menu {
+  id: string;
+  websiteId: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { items: number };
+}
+
+/** Nested shape returned by GET /menus/:id — assembled by the backend. */
+export interface MenuItemNode {
+  id: string;
+  label: string;
+  url?: string | null;
+  pageId?: string | null;
+  entryId?: string | null;
+  target?: string | null;
+  order: number;
+  children: MenuItemNode[];
+}
+
+export interface MenuDetail extends Menu {
+  items: MenuItemNode[];
+}
+
+export interface MenuItemInput {
+  label: string;
+  url?: string;
+  pageId?: string;
+  entryId?: string;
+  target?: string;
+  parentId?: string;
+  order?: number;
+}
+
+/** Flat payload for PUT /menus/:id/reorder — the whole tree in one call. */
+export interface ReorderMenuItem {
+  id: string;
+  parentId?: string | null;
+  order: number;
+}
+
+export interface Seo {
+  id: string;
+  websiteId: string;
+  targetType: SeoTarget;
+  targetId: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImageUrl?: string | null;
+  canonicalUrl?: string | null;
+  noIndex: boolean;
+  extra?: Record<string, unknown> | null;
+}
+
+export interface SeoInput {
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImageUrl?: string;
+  canonicalUrl?: string;
+  noIndex?: boolean;
+  extra?: Record<string, unknown>;
+}
+
+export interface SeoDefaults {
+  titleTemplate?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImageUrl?: string | null;
+}
+
+export interface Setting {
+  id: string;
+  websiteId: string;
+  key: string;
+  /** Any JSON value: string, number, boolean, object or array. */
+  value: unknown;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApiKey {
+  id: string;
+  websiteId: string;
+  name: string;
+  prefix: string;
+  lastUsedAt?: string | null;
+  revokedAt?: string | null;
+  createdAt: string;
+}
+
+/** Only ever returned by POST /api-keys — `key` is not recoverable later. */
+export interface ApiKeyCreated {
+  id: string;
+  name: string;
+  prefix: string;
+  key: string;
+  createdAt: string;
 }
 
 export interface Paginated<T> {
