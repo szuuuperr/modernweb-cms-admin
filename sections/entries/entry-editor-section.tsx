@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge, ErrorBlock, LoadingBlock } from "@/components/ui/feedback";
 import { FieldInput } from "@/components/entries/field-input";
+import { PreviewButton } from "@/components/preview/preview-button";
 import { SeoPanel } from "@/components/seo/seo-panel";
 import type { Entry, Field } from "@/lib/api/types";
 
@@ -55,6 +56,8 @@ export function EntryEditorSection({
       websiteId={websiteId}
       collectionId={collectionId}
       collectionName={collection.name}
+      // The public Content API addresses collections by slug, not id.
+      collectionSlug={collection.slug}
       fields={fields}
       entry={entry ?? null}
       isNew={isNew}
@@ -66,6 +69,7 @@ function EntryForm({
   websiteId,
   collectionId,
   collectionName,
+  collectionSlug,
   fields,
   entry,
   isNew,
@@ -73,6 +77,7 @@ function EntryForm({
   websiteId: string;
   collectionId: string;
   collectionName: string;
+  collectionSlug: string;
   fields: Field[];
   entry: Entry | null;
   isNew: boolean;
@@ -144,6 +149,12 @@ function EntryForm({
             <Badge tone={entry.status === "PUBLISHED" ? "success" : "info"}>
               {entry.status}
             </Badge>
+          )}
+          {entry && collectionSlug && (
+            <PreviewButton
+              websiteId={websiteId}
+              contentPath={`/collections/${collectionSlug}/entries/${entry.id}`}
+            />
           )}
           {!isNew && entry && canPublish && (
             <Button

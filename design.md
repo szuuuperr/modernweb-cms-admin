@@ -57,6 +57,21 @@ Latar lembutnya: `success-soft`, `warning-soft`, `danger-soft`, `info-soft`, `vi
 
 > **Aturan kontras**: teks di atas `primary-700` selalu putih (rasio 8.6:1 ✓). Teks aksen selalu varian `-700`/`-800` di atas latar `-50`, jangan `-600` di atas putih untuk teks kecil.
 
+### Warna chart — `primary-600`, bukan `primary-700`
+
+Mark data (batang chart) memakai **`#0052cc` (`primary-600`)**, sementara tombol tetap `primary-700`.
+
+Alasannya terukur, bukan selera: `#00419c` duduk di OKLCH **L 0.402**, di bawah band mark 0.43–0.77. `primary-600` adalah step pertama dari ramp yang sama yang lolos band, chroma floor, **dan** kontras ≥3:1 di atas putih. Tombol tidak terikat aturan ini — ia chrome UI, bukan mark data.
+
+Chart di panel ini **single-series**, jadi:
+
+- **Tidak ada legend** — judul kartu sudah menyebut apa yang diplot.
+- Kategori nominal (path) memakai **satu hue yang sama**; jangan warnai batang berdasarkan nilainya — panjang batang sudah menyampaikan itu.
+- Batang: **cap 24px**, ujung data membulat 4px, siku di baseline, jarak antar batang 2px. Cap ada di **batang**, bukan kolomnya — kalau kolom yang dibatasi, sisa ruang menumpuk di tepi kanan alih-alih jadi udara di tiap slot.
+- Label langsung **selektif** (hanya puncak); sisanya lewat tick sumbu dan tooltip.
+- Teks memakai token ink, **tidak pernah** warna mark.
+- Wajib ada **tampilan tabel** sebagai jalur akses tanpa hover.
+
 ---
 
 ## 2. Tipografi

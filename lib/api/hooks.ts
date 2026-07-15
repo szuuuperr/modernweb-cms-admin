@@ -11,10 +11,14 @@ import type {
   AddMemberInput,
   ApiKey,
   ApiKeyCreated,
+  AuditLog,
   Collection,
   Entry,
   EntryStatus,
   Field,
+  Form,
+  FormInput,
+  FormSubmission,
   Media,
   Member,
   Menu,
@@ -22,7 +26,9 @@ import type {
   MenuItemInput,
   Page,
   PageStatus,
+  PageViewSummary,
   Paginated,
+  PreviewToken,
   ReorderMenuItem,
   Role,
   Seo,
@@ -74,6 +80,14 @@ export const keys = {
   webhookEvents: (id: string) => ["websites", id, "webhooks", "events"] as const,
   deliveries: (id: string, wid: string, page: number) =>
     ["websites", id, "webhooks", wid, "deliveries", page] as const,
+
+  forms: (id: string) => ["websites", id, "forms"] as const,
+  form: (id: string, fid: string) => ["websites", id, "forms", fid] as const,
+  submissions: (id: string, fid: string, page: number) =>
+    ["websites", id, "forms", fid, "submissions", page] as const,
+  analytics: (id: string, q: unknown) =>
+    ["websites", id, "analytics", q] as const,
+  auditLogs: (id: string, q: unknown) => ["websites", id, "audit", q] as const,
 };
 
 // ---------------------------------------------------------------- websites
@@ -857,4 +871,129 @@ export function useDeleteWebhook(websiteId: string) {
   return useWebhookMutation(websiteId, (webhookId: string) =>
     api.delete(`/websites/${websiteId}/webhooks/${webhookId}`),
   );
+}
+
+// ------------------------------------------------------------------- forms
+
+export function useForms(websiteId: string) {
+  return useQuery({
+    queryKey: keys.forms(websiteId),
+    queryFn: () => api.get<Form[]>(`/websites/${websiteId}/forms`),
+    enabled: !!websiteId,
+  });
+}
+
+export function useForm(websiteId: string, formId: string) {
+  return useQuery({
+    queryKey: keys.form(websiteId, formId),
+    queryFn: () => api.get<Form>(`/websites/${websiteId}/forms/${formId}`),
+    enabled: !!websiteId && !!formId,
+  });
+}
+
+export function useSubmissions(websiteId: string, formId: string, page = 1) {
+  return useQuery({
+    queryKey: keys.submissions(websiteId, formId, page),
+    queryFn: () =>
+      api.get<Paginated<FormSubmission>>(
+        `/websites/${websiteId}/forms/${formId}/submissions`,
+        { page, limit: 20 },
+      ),
+    enabled: !!websiteId && !!formId,
+  });
+}
+
+function useFormMutation<TArgs, TResult>(
+  websiteId: string,
+  fn: (args: TArgs) => Promise<TResult>,
+) {
+  const qc = useQueryClient();
+  return useMutation<TResult, Error, TArgs>({
+    mutationFn: fn,
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["websites", websiteId, "forms"] }),
+  });
+}
+
+export function useCreateForm(websiteId: string) {
+  return useFormMutation(websiteId, (body: FormInput) =>
+    api.post<Form>(`/websites/${websiteId}/forms`, body),
+  );
+}
+
+export function useUpdateForm(websiteId: string) {
+  return useFormMutation(
+    websiteId,
+    ({ formId, ...body }: Partial<FormInput> & { formId: string }) =>
+      api.patch<Form>(`/websites/${websiteId}/forms/${formId}`, body),
+  );
+}
+
+export function useDeleteForm(websiteId: string) {
+  return useFormMutation(websiteId, (formId: string) =>
+    api.delete(`/websites/${websiteId}/forms/${formId}`),
+  );
+}
+
+export function useDeleteSubmission(websiteId: string, formId: string) {
+  return useFormMutation(websiteId, (submissionId: string) =>
+    api.delete(
+      `/websites/${websiteId}/forms/${formId}/submissions/${submissionId}`,
+    ),
+  );
+}
+
+// --------------------------------------------------------------- analytics
+
+export interface AnalyticsQuery {
+  from?: string;
+  to?: string;
+  path?: string;
+}
+
+export function usePageViews(websiteId: string, query: AnalyticsQuery) {
+  return useQuery({
+    queryKey: keys.analytics(websiteId, query),
+    queryFn: () =>
+      api.get<PageViewSummary>(`/websites/${websiteId}/analytics/page-views`, {
+        ...query,
+      }),
+    enabled: !!websiteId,
+  });
+}
+
+// ------------------------------------------------------------------- audit
+
+export interface AuditQuery {
+  page?: number;
+  limit?: number;
+  resource?: string;
+  action?: string;
+  from?: string;
+  to?: string;
+}
+
+export function useAuditLogs(websiteId: string, query: AuditQuery) {
+  return useQuery({
+    queryKey: keys.auditLogs(websiteId, query),
+    queryFn: () =>
+      api.get<Paginated<AuditLog>>(`/websites/${websiteId}/audit-logs`, {
+        ...query,
+      }),
+    enabled: !!websiteId,
+  });
+}
+
+// ----------------------------------------------------------------- preview
+
+/**
+ * Issues a short-lived, website-scoped JWT. Not a query: each call mints a new
+ * token, so it must be an explicit user action rather than something a render
+ * can trigger.
+ */
+export function useIssuePreviewToken(websiteId: string) {
+  return useMutation({
+    mutationFn: () =>
+      api.post<PreviewToken>(`/websites/${websiteId}/preview-tokens`),
+  });
 }

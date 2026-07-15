@@ -21,6 +21,7 @@ import {
   toDrafts,
   type BlockDraft,
 } from "@/components/pages/block-editor";
+import { PreviewButton } from "@/components/preview/preview-button";
 import { SeoPanel } from "@/components/seo/seo-panel";
 import type { Page } from "@/lib/api/types";
 
@@ -122,6 +123,12 @@ function PageForm({
             <Badge tone={page.status === "PUBLISHED" ? "success" : "info"}>
               {page.status}
             </Badge>
+          )}
+          {page && (
+            <PreviewButton
+              websiteId={websiteId}
+              contentPath={`/pages/${page.slug}`}
+            />
           )}
           {page && can("pages.publish") && (
             <Button

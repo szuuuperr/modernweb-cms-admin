@@ -309,6 +309,78 @@ export interface WebhookDelivery {
   createdAt: string;
 }
 
+// ------------------------------------------------------------ Fase 4
+
+/**
+ * Same shape as a collection Field — the backend deliberately reuses
+ * EntryValidator for forms, so a new field type needs one strategy, not two.
+ */
+export interface FormField {
+  key: string;
+  name: string;
+  type: FieldType;
+  required?: boolean;
+  options?: FieldOptions;
+}
+
+export interface Form {
+  id: string;
+  websiteId: string;
+  name: string;
+  slug: string;
+  fields: FormField[];
+  notifyEmails: string[];
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { submissions: number };
+}
+
+export interface FormInput {
+  name: string;
+  slug: string;
+  fields: FormField[];
+  notifyEmails?: string[];
+  active?: boolean;
+}
+
+export interface FormSubmission {
+  id: string;
+  formId: string;
+  websiteId: string;
+  data: Record<string, unknown>;
+  ip?: string | null;
+  userAgent?: string | null;
+  createdAt: string;
+}
+
+/** Daily counters, not per-visit rows — see the Fase 4 decisions in PLAN.md. */
+export interface PageViewSummary {
+  range: { from: string; to: string };
+  total: number;
+  topPaths: { path: string; count: number }[];
+  daily: { day: string; count: number }[];
+}
+
+export interface AuditLog {
+  id: string;
+  websiteId?: string | null;
+  actorId?: string | null;
+  actorEmail?: string | null;
+  resource: string;
+  action: string;
+  targetId?: string | null;
+  meta?: Record<string, unknown> | null;
+  ip?: string | null;
+  createdAt: string;
+}
+
+export interface PreviewToken {
+  token: string;
+  expiresIn: string;
+  websiteSlug: string;
+}
+
 export interface Paginated<T> {
   items: T[];
   meta: { page: number; limit: number; total: number; totalPages: number };

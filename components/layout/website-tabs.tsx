@@ -15,10 +15,13 @@ const TABS = [
   { segment: "/pages", label: "Pages", permission: "pages.read" },
   { segment: "/menus", label: "Menus", permission: "menus.read" },
   { segment: "/media", label: "Media", permission: "media.read" },
+  { segment: "/forms", label: "Forms", permission: "forms.read" },
+  { segment: "/analytics", label: "Analytics", permission: "analytics.read" },
   { segment: "/seo", label: "SEO", permission: "seo.read" },
   { segment: "/settings", label: "Settings", permission: "settings.read" },
   { segment: "/api-keys", label: "API Keys", permission: "apikeys.read" },
   { segment: "/webhooks", label: "Webhooks", permission: "webhooks.read" },
+  { segment: "/audit", label: "Audit", permission: "audit.read" },
   { segment: "/members", label: "Anggota", permission: "members.read" },
   { segment: "/roles", label: "Role", permission: "roles.read" },
 ];
