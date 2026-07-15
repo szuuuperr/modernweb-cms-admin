@@ -31,6 +31,11 @@ import type {
   SeoTarget,
   Setting,
   User,
+  Webhook,
+  WebhookCreated,
+  WebhookDelivery,
+  WebhookInput,
+  WebhookSecret,
   Website,
   WebsiteDetail,
   WebsitePermissions,
@@ -65,6 +70,10 @@ export const keys = {
     ["websites", id, "seo", type, targetId] as const,
   settings: (id: string) => ["websites", id, "settings"] as const,
   apiKeys: (id: string) => ["websites", id, "api-keys"] as const,
+  webhooks: (id: string) => ["websites", id, "webhooks"] as const,
+  webhookEvents: (id: string) => ["websites", id, "webhooks", "events"] as const,
+  deliveries: (id: string, wid: string, page: number) =>
+    ["websites", id, "webhooks", wid, "deliveries", page] as const,
 };
 
 // ---------------------------------------------------------------- websites
@@ -764,5 +773,88 @@ export function useRevokeApiKey(websiteId: string) {
 export function useDeleteApiKey(websiteId: string) {
   return useApiKeyMutation(websiteId, (apiKeyId: string) =>
     api.delete(`/websites/${websiteId}/api-keys/${apiKeyId}`),
+  );
+}
+
+// ---------------------------------------------------------------- webhooks
+
+export function useWebhooks(websiteId: string) {
+  return useQuery({
+    queryKey: keys.webhooks(websiteId),
+    queryFn: () => api.get<Webhook[]>(`/websites/${websiteId}/webhooks`),
+    enabled: !!websiteId,
+  });
+}
+
+/**
+ * The subscribable event names come from the API rather than a copy here: the
+ * backend rejects anything outside its own list (@IsIn), so a hardcoded copy
+ * that drifted would just produce failed saves.
+ */
+export function useWebhookEvents(websiteId: string) {
+  return useQuery({
+    queryKey: keys.webhookEvents(websiteId),
+    queryFn: () =>
+      api.get<{ events: string[] }>(`/websites/${websiteId}/webhooks/events`),
+    enabled: !!websiteId,
+    staleTime: Infinity,
+  });
+}
+
+export function useWebhookDeliveries(
+  websiteId: string,
+  webhookId: string,
+  page = 1,
+) {
+  return useQuery({
+    queryKey: keys.deliveries(websiteId, webhookId, page),
+    queryFn: () =>
+      api.get<Paginated<WebhookDelivery>>(
+        `/websites/${websiteId}/webhooks/${webhookId}/deliveries`,
+        { page, limit: 20 },
+      ),
+    enabled: !!websiteId && !!webhookId,
+  });
+}
+
+function useWebhookMutation<TArgs, TResult>(
+  websiteId: string,
+  fn: (args: TArgs) => Promise<TResult>,
+) {
+  const qc = useQueryClient();
+  return useMutation<TResult, Error, TArgs>({
+    mutationFn: fn,
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: keys.webhooks(websiteId) }),
+  });
+}
+
+/** Returns the secret — shown once, so the caller must reveal it at once. */
+export function useCreateWebhook(websiteId: string) {
+  return useWebhookMutation(websiteId, (body: WebhookInput) =>
+    api.post<WebhookCreated>(`/websites/${websiteId}/webhooks`, body),
+  );
+}
+
+export function useUpdateWebhook(websiteId: string) {
+  return useWebhookMutation(
+    websiteId,
+    ({ webhookId, ...body }: Partial<WebhookInput> & { webhookId: string }) =>
+      api.patch<Webhook>(`/websites/${websiteId}/webhooks/${webhookId}`, body),
+  );
+}
+
+/** Also one-shot: the old secret stops working the moment this returns. */
+export function useRotateWebhookSecret(websiteId: string) {
+  return useWebhookMutation(websiteId, (webhookId: string) =>
+    api.post<WebhookSecret>(
+      `/websites/${websiteId}/webhooks/${webhookId}/rotate-secret`,
+    ),
+  );
+}
+
+export function useDeleteWebhook(websiteId: string) {
+  return useWebhookMutation(websiteId, (webhookId: string) =>
+    api.delete(`/websites/${websiteId}/webhooks/${webhookId}`),
   );
 }

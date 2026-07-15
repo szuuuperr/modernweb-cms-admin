@@ -21,6 +21,8 @@ export type PageStatus = "DRAFT" | "PUBLISHED";
 
 export type SeoTarget = "PAGE" | "ENTRY";
 
+export type WebhookDeliveryStatus = "PENDING" | "SUCCESS" | "FAILED";
+
 export interface User {
   id: string;
   email: string;
@@ -259,6 +261,51 @@ export interface ApiKeyCreated {
   name: string;
   prefix: string;
   key: string;
+  createdAt: string;
+}
+
+// ------------------------------------------------------------ Fase 3
+
+export interface Webhook {
+  id: string;
+  name: string;
+  url: string;
+  events: string[];
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * The secret signs payloads, so the API only ever returns it from create and
+ * rotate-secret — never from a list or a read.
+ */
+export interface WebhookCreated extends Webhook {
+  secret: string;
+}
+
+export interface WebhookSecret {
+  id: string;
+  secret: string;
+}
+
+export interface WebhookInput {
+  name: string;
+  url: string;
+  events: string[];
+  active?: boolean;
+}
+
+export interface WebhookDelivery {
+  id: string;
+  webhookId: string;
+  event: string;
+  payload: Record<string, unknown>;
+  status: WebhookDeliveryStatus;
+  attempts: number;
+  responseStatus?: number | null;
+  lastError?: string | null;
+  deliveredAt?: string | null;
   createdAt: string;
 }
 

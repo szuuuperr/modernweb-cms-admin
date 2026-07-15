@@ -18,6 +18,7 @@ const TABS = [
   { segment: "/seo", label: "SEO", permission: "seo.read" },
   { segment: "/settings", label: "Settings", permission: "settings.read" },
   { segment: "/api-keys", label: "API Keys", permission: "apikeys.read" },
+  { segment: "/webhooks", label: "Webhooks", permission: "webhooks.read" },
   { segment: "/members", label: "Anggota", permission: "members.read" },
   { segment: "/roles", label: "Role", permission: "roles.read" },
 ];
