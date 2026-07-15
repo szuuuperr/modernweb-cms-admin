@@ -5,7 +5,9 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700/40 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  // shrink-0 + whitespace-nowrap: a button is a label, and wrapping it to two
+  // lines in a cramped header row reads as broken rather than responsive.
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700/40 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {

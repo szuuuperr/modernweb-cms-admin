@@ -123,7 +123,13 @@ export interface Member {
   userId: string;
   websiteId: string;
   roleId: string;
-  user: Pick<User, "id" | "email" | "name">;
+  /**
+   * `platformRole` matters here: SUPER_ADMIN and PLATFORM_ADMIN bypass
+   * PermissionsGuard entirely, so their website role grants them nothing and
+   * changing it takes nothing away. The panel must say so rather than offer a
+   * control that does nothing.
+   */
+  user: Pick<User, "id" | "email" | "name" | "platformRole">;
   role: Pick<Role, "id" | "name">;
 }
 

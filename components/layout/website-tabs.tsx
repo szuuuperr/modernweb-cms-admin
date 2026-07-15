@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { useWebsite } from "@/lib/api/hooks";
 import { useCan } from "@/lib/auth/use-can";
+import { useIsPlatformAdmin } from "@/lib/auth/use-view";
 import { PageHeader } from "@/components/layout/page-header";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,6 @@ const TABS = [
   { segment: "/media", label: "Media", permission: "media.read" },
   { segment: "/forms", label: "Forms", permission: "forms.read" },
   { segment: "/analytics", label: "Analytics", permission: "analytics.read" },
-  { segment: "/seo", label: "SEO", permission: "seo.read" },
   { segment: "/settings", label: "Settings", permission: "settings.read" },
   { segment: "/api-keys", label: "API Keys", permission: "apikeys.read" },
   { segment: "/webhooks", label: "Webhooks", permission: "webhooks.read" },
@@ -26,11 +26,19 @@ const TABS = [
   { segment: "/roles", label: "Role", permission: "roles.read" },
 ];
 
+/**
+ * Platform-admin chrome only. Clients navigate the same website from the
+ * sidebar instead, and their sidebar deliberately omits half of these tabs —
+ * rendering both would put the hidden ones back within one click.
+ */
 export function WebsiteTabs({ websiteId }: { websiteId: string }) {
   const pathname = usePathname();
   const { can } = useCan(websiteId);
   const { data: website } = useWebsite(websiteId);
+  const isPlatformAdmin = useIsPlatformAdmin();
   const base = `/websites/${websiteId}`;
+
+  if (!isPlatformAdmin) return null;
 
   return (
     <PageHeader

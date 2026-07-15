@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { useCreateWebsite, useWebsites } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useIsPlatformAdmin } from "@/lib/auth/use-view";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -39,12 +41,27 @@ export function WebsitesSection() {
   const { user } = useAuth();
   const { data, isLoading, error } = useWebsites();
   const [open, setOpen] = useState(false);
+  const isPlatformAdmin = useIsPlatformAdmin();
+  const router = useRouter();
 
   // POST /websites is RequirePlatformRole(PLATFORM_ADMIN); SUPPORT and plain
   // members would only earn a 403 from the button.
   const canCreate =
     user?.platformRole === "PLATFORM_ADMIN" ||
     user?.platformRole === "SUPER_ADMIN";
+
+  /**
+   * A client belongs to one website in the normal case, so a chooser with a
+   * single card is a page they would click through every session. Send them
+   * straight in. Clients with several websites still need this list — forcing
+   * them into one would strand the rest.
+   */
+  const only = !isPlatformAdmin && data?.items.length === 1 ? data.items[0] : null;
+  useEffect(() => {
+    if (only) router.replace(`/websites/${only.id}`);
+  }, [only, router]);
+
+  if (only) return <LoadingBlock label="Membuka website Anda…" />;
 
   return (
     <div>

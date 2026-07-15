@@ -12,6 +12,8 @@ import {
   useDeleteCollection,
 } from "@/lib/api/hooks";
 import { useCan } from "@/lib/auth/use-can";
+import { useIsPlatformAdmin } from "@/lib/auth/use-view";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { FieldError, Input, Label, Textarea } from "@/components/ui/input";
@@ -32,15 +34,28 @@ type FormValues = z.infer<typeof schema>;
 export function CollectionsSection({ websiteId }: { websiteId: string }) {
   const { data, isLoading, error } = useCollections(websiteId);
   const { can } = useCan(websiteId);
+  const isPlatformAdmin = useIsPlatformAdmin();
   const [open, setOpen] = useState(false);
-  const manage = can("collections.manage");
+
+  // Defining the shape of content is a platform-admin job; clients fill it in.
+  // `collections.manage` alone is not enough — an Owner has it, but the builder
+  // is deliberately not part of the client's world.
+  const manage = isPlatformAdmin && can("collections.manage");
 
   return (
     <div className="space-y-4">
+      {!isPlatformAdmin && (
+        <PageHeader
+          title="Collection"
+          description="Pilih collection untuk mengisi atau menyunting kontennya."
+        />
+      )}
+
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted">
-          Collection mendefinisikan bentuk konten. Field-nya menentukan form
-          editor entry.
+          {isPlatformAdmin
+            ? "Collection mendefinisikan bentuk konten. Field-nya menentukan form editor entry."
+            : "Bentuk setiap collection ditentukan ModernWeb — di sini Anda mengisi kontennya."}
         </p>
         {manage && (
           <Button onClick={() => setOpen(true)}>
@@ -67,6 +82,8 @@ export function CollectionsSection({ websiteId }: { websiteId: string }) {
             websiteId={websiteId}
             collection={collection}
             canManage={manage}
+            // Clients go straight to the content; only staff see the builder.
+            isPlatformAdmin={isPlatformAdmin}
           />
         ))}
       </div>
@@ -84,21 +101,23 @@ function CollectionCard({
   websiteId,
   collection,
   canManage,
+  isPlatformAdmin,
 }: {
   websiteId: string;
   collection: { id: string; name: string; slug: string; description?: string | null };
   canManage: boolean;
+  isPlatformAdmin: boolean;
 }) {
   const remove = useDeleteCollection(websiteId);
+  const base = `/websites/${websiteId}/collections/${collection.id}`;
+  // Staff land on the field builder; clients land on the content itself.
+  const href = isPlatformAdmin ? base : `${base}/entries`;
 
   return (
     <Card className="transition-shadow hover:shadow-pop">
       <CardBody className="space-y-2">
         <div className="flex items-start justify-between gap-2">
-          <Link
-            href={`/websites/${websiteId}/collections/${collection.id}`}
-            className="font-medium hover:underline"
-          >
+          <Link href={href} className="font-medium hover:text-primary-700 hover:underline">
             {collection.name}
           </Link>
           {canManage && (

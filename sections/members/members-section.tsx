@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, UserPlus } from "lucide-react";
+import { Lock, Trash2, UserPlus } from "lucide-react";
 import {
   useAddMember,
   useMembers,
@@ -15,7 +15,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { EmptyState, ErrorBlock, LoadingBlock } from "@/components/ui/feedback";
+import {
+  Badge,
+  EmptyState,
+  ErrorBlock,
+  LoadingBlock,
+} from "@/components/ui/feedback";
 
 export function MembersSection({ websiteId }: { websiteId: string }) {
   const { data: members, isLoading, error } = useMembers(websiteId);
@@ -62,62 +67,95 @@ export function MembersSection({ websiteId }: { websiteId: string }) {
                 </tr>
               </thead>
               <tbody>
-                {members.map((member) => (
-                  <tr
-                    key={member.id}
-                    className="border-b border-slate-100 last:border-0"
-                  >
-                    <td className="px-4 py-2 font-medium">{member.user.name}</td>
-                    <td className="px-4 py-2 text-slate-600">
-                      {member.user.email}
-                      {member.userId === user?.id && (
-                        <span className="ml-2 text-xs text-faint">(Anda)</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2">
-                      {manage ? (
-                        <Select
-                          className="h-8 w-40"
-                          value={member.roleId}
-                          onChange={(e) =>
-                            updateRole.mutate({
-                              memberId: member.id,
-                              roleId: e.target.value,
-                            })
-                          }
-                        >
-                          {roles?.map((role) => (
-                            <option key={role.id} value={role.id}>
-                              {role.name}
-                            </option>
-                          ))}
-                        </Select>
-                      ) : (
-                        member.role.name
-                      )}
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      {manage && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Keluarkan anggota"
-                          onClick={() => {
-                            if (
-                              confirm(
-                                `Keluarkan ${member.user.name} dari website ini?`,
-                              )
-                            ) {
-                              removeMember.mutate(member.id);
+                {members.map((member) => {
+                  const isSelf = member.userId === user?.id;
+                  // Their access comes from the platform role and bypasses
+                  // PermissionsGuard, so this row's role grants them nothing.
+                  const isPlatformAdmin =
+                    member.user.platformRole === "SUPER_ADMIN" ||
+                    member.user.platformRole === "PLATFORM_ADMIN";
+                  // Self-edit is a one-way door (the API rejects it too);
+                  // editing a platform admin's role would change nothing.
+                  const locked = isSelf || isPlatformAdmin;
+
+                  return (
+                    <tr
+                      key={member.id}
+                      className="border-b border-slate-100 last:border-0"
+                    >
+                      <td className="px-4 py-2 font-medium">
+                        {member.user.name}
+                      </td>
+                      <td className="px-4 py-2 text-slate-600">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span>{member.user.email}</span>
+                          {isSelf && (
+                            <span className="text-xs text-faint">(Anda)</span>
+                          )}
+                          {isPlatformAdmin && (
+                            <Badge tone="violet">PLATFORM ADMIN</Badge>
+                          )}
+                        </div>
+                        {isPlatformAdmin && (
+                          <p className="mt-0.5 text-xs text-muted">
+                            Akses penuh dari platform role, bukan dari role
+                            website ini — mengubahnya di sini tidak berefek.
+                          </p>
+                        )}
+                      </td>
+                      <td className="px-4 py-2">
+                        {manage && !locked ? (
+                          <Select
+                            className="h-8 w-40"
+                            value={member.roleId}
+                            onChange={(e) =>
+                              updateRole.mutate({
+                                memberId: member.id,
+                                roleId: e.target.value,
+                              })
                             }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 text-danger" />
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                          >
+                            {roles?.map((role) => (
+                              <option key={role.id} value={role.id}>
+                                {role.name}
+                              </option>
+                            ))}
+                          </Select>
+                        ) : (
+                          <span className="flex items-center gap-1.5">
+                            {member.role.name}
+                            {manage && locked && (
+                              <Lock
+                                className="h-3 w-3 text-faint"
+                                aria-label="Terkunci"
+                              />
+                            )}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        {manage && !locked && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Keluarkan ${member.user.name}`}
+                            onClick={() => {
+                              if (
+                                confirm(
+                                  `Keluarkan ${member.user.name} dari website ini?`,
+                                )
+                              ) {
+                                removeMember.mutate(member.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-danger" />
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </CardBody>
